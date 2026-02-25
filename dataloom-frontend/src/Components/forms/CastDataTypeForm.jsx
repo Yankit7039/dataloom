@@ -2,9 +2,11 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { transformProject } from "../../api";
 import { useProjectContext } from "../../context/ProjectContext";
+import { useToast } from "../../context/ToastContext";
 
 const CastDataTypeForm = ({ projectId, onClose, onTransform }) => {
   const { columns } = useProjectContext();
+  const { showToast } = useToast();
   const [column, setColumn] = useState("");
   const [targetType, setTargetType] = useState("string");
 
@@ -21,7 +23,7 @@ const CastDataTypeForm = ({ projectId, onClose, onTransform }) => {
       onTransform(response);
     } catch (error) {
       console.error("Error casting data type:", error);
-      alert(error.response?.data?.detail || "Failed to cast data type.");
+      showToast(error.response?.data?.detail || "Failed to cast data type.", "error");
     }
     onClose();
   };

@@ -7,13 +7,8 @@ import PivotTableForm from "./forms/PivotTableForm";
 import CastDataTypeForm from "./forms/CastDataTypeForm";
 import LogsPanel from "./history/LogsPanel";
 import CheckpointsPanel from "./history/CheckpointsPanel";
-import {
-  saveProject,
-  exportProject,
-  getLogs,
-  getCheckpoints,
-  revertToCheckpoint,
-} from "../api";
+import { saveProject, exportProject, getLogs, getCheckpoints, revertToCheckpoint } from "../api";
+import { useToast } from "../context/ToastContext";
 import proptype from "prop-types";
 import {
   LuFilter,
@@ -29,6 +24,7 @@ import {
 } from "react-icons/lu";
 
 const Menu_NavBar = ({ projectId, onTransform }) => {
+  const { showToast } = useToast();
   const [showFilterForm, setShowFilterForm] = useState(false);
   const [showSortForm, setShowSortForm] = useState(false);
   const [showDropDuplicateForm, setShowDropDuplicateForm] = useState(false);
@@ -73,10 +69,10 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
       try {
         const response = await saveProject(projectId, commitMessage);
         console.log("Save response:", response);
-        alert("Project saved successfully!");
+        showToast("Project saved successfully!", "success");
       } catch (error) {
         console.error("Error saving project:", error);
-        alert("Failed to save project.");
+        showToast("Failed to save project.", "error");
       }
     }
   };
@@ -94,7 +90,7 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting project:", error);
-      alert("Failed to export project.");
+      showToast("Failed to export project.", "error");
     }
   };
 
@@ -104,10 +100,10 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
         const response = await revertToCheckpoint(projectId, checkpointId);
         console.log("Revert response:", response);
         onTransform(response);
-        alert("Project reverted successfully!");
+        showToast("Project reverted successfully!", "success");
       } catch (error) {
         console.error("Error reverting project:", error);
-        alert("Failed to revert project.");
+        showToast("Failed to revert project.", "error");
       }
     }
   };
@@ -246,9 +242,7 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
       <div className="flex items-stretch gap-3 px-8 py-2 min-h-[64px]">
         {tabs[activeTab].map((section, sectionIdx) => (
           <div key={section.group} className="flex items-stretch gap-3">
-            {sectionIdx > 0 && (
-              <div className="w-px bg-gray-200 self-stretch" />
-            )}
+            {sectionIdx > 0 && <div className="w-px bg-gray-200 self-stretch" />}
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 flex-1">
                 {section.items.map((item) => (
@@ -258,9 +252,7 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
                     className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors duration-150"
                   >
                     <item.icon className="w-5 h-5 text-gray-600" />
-                    <span className="text-xs text-gray-700">
-                      {item.label}
-                    </span>
+                    <span className="text-xs text-gray-700">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -273,17 +265,9 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
       </div>
 
       {showFilterForm && (
-        <FilterForm
-          onClose={() => setShowFilterForm(false)}
-          projectId={projectId}
-        />
+        <FilterForm onClose={() => setShowFilterForm(false)} projectId={projectId} />
       )}
-      {showSortForm && (
-        <SortForm
-          onClose={() => setShowSortForm(false)}
-          projectId={projectId}
-        />
-      )}
+      {showSortForm && <SortForm onClose={() => setShowSortForm(false)} projectId={projectId} />}
       {showDropDuplicateForm && (
         <DropDuplicateForm
           projectId={projectId}
@@ -298,10 +282,7 @@ const Menu_NavBar = ({ projectId, onTransform }) => {
         />
       )}
       {showPivotTableForm && (
-        <PivotTableForm
-          onClose={() => setShowPivotTableForm(false)}
-          projectId={projectId}
-        />
+        <PivotTableForm onClose={() => setShowPivotTableForm(false)} projectId={projectId} />
       )}
       {showCastDataTypeForm && (
         <CastDataTypeForm
